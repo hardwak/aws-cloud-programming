@@ -60,6 +60,13 @@ resource "aws_security_group" "private_sg" {
   }
 
   ingress {
+    from_port   = 5173
+    to_port     = 5173
+    protocol    = "tcp"
+    cidr_blocks = [aws_subnet.public.cidr_block]
+  }
+
+  ingress {
     from_port   = 8080
     to_port     = 8081
     protocol    = "tcp"
