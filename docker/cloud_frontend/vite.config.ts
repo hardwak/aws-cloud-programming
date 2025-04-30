@@ -6,6 +6,11 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [sveltekit(), tailwindcss()],
 
+	server: {
+		host: true,
+		allowedHosts: true
+	},
+
 	test: {
 		workspace: [
 			{
