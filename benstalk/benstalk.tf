@@ -63,6 +63,14 @@ resource "aws_s3_object" "dockerrun" {
   content_type = "application/json"
 }
 
+resource "aws_elastic_beanstalk_application_version" "latest" {
+  name        = "app-version-${formatdate("YYYYMMDDhhmmss", timestamp())}"
+  application = aws_elastic_beanstalk_application.app.name
+  bucket      = aws_s3_bucket.app_deployment.id
+  key         = aws_s3_object.dockerrun.key
+  depends_on  = [aws_s3_object.dockerrun]
+}
+
 resource "aws_elastic_beanstalk_environment" "env" {
   name                = "app-env"
   application         = aws_elastic_beanstalk_application.app.name
