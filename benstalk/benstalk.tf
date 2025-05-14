@@ -2,46 +2,6 @@ data "aws_iam_role" "lab_role" {
   name = "LabRole"
 }
 
-locals {
-  dockerrun_aws_json = jsonencode({
-    AWSEBDockerrunVersion = "3",
-    containerDefinitions = [
-      {
-        name = "backend-container",
-        image = "hardwak/cloud-backend:latest",
-        portMappings = [
-          {
-            hostPort = 8081,
-            containerPort = 8081
-          }
-        ],
-        environment = [
-          {
-            name = "CORS_ALLOWED_ORIGINS",
-            value = "http://${aws_elastic_beanstalk_environment.env.cname}:5173"
-          }
-        ]
-      },
-      {
-        name = "frontend-container",
-        image = "hardwak/cloud_frontend:latest",
-        portMappings = [
-          {
-            hostPort = 5173,
-            containerPort = 5173
-          }
-        ],
-        environment = [
-          {
-            name = "PUBLIC_API_BASE_URL",
-            value = "http://${aws_elastic_beanstalk_environment.env.cname}:8081"
-          }
-        ]
-      }
-    ]
-  })
-}
-
 resource "aws_iam_instance_profile" "eb_instance_profile" {
   name = "eb-instance-profile"
   role = data.aws_iam_role.lab_role.name
@@ -59,7 +19,7 @@ resource "aws_s3_bucket" "app_deployment" {
 resource "aws_s3_object" "dockerrun" {
   bucket       = aws_s3_bucket.app_deployment.id
   key          = "Dockerrun.aws.json"
-  content      = local.dockerrun_aws_json
+  content      = file("${path.module}/Dockerrun.aws.json")
   content_type = "application/json"
 }
 
@@ -74,7 +34,8 @@ resource "aws_elastic_beanstalk_application_version" "latest" {
 resource "aws_elastic_beanstalk_environment" "env" {
   name                = "app-env"
   application         = aws_elastic_beanstalk_application.app.name
-  solution_stack_name = "64bit Amazon Linux 2023 v4.1.1 running ECS"
+  solution_stack_name = "64bit Amazon Linux 2 v3.4.1 running ECS"
+  version_label       = aws_elastic_beanstalk_application_version.latest.name
 
   setting {
     namespace = "aws:elasticbeanstalk:environment"
@@ -127,7 +88,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   setting {
     namespace = "aws:ec2:instances"
     name      = "InstanceTypes"
-    value     = "t3.small"
+    value     = "t3.large"
   }
 }
 

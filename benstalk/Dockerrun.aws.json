@@ -1,0 +1,53 @@
+{
+    "AWSEBDockerrunVersion": "2",
+    "containerDefinitions": [
+      {
+        "name": "backend-container",
+        "image": "hardwak/cloud-backend:latest",
+        "essential": true,
+        "memory": 2048,
+        "portMappings": [
+          {
+            "hostPort": 8081,
+            "containerPort": 8081
+          }
+        ],
+        "environment": [
+          {
+            "name": "CORS_ALLOWED_ORIGINS",
+            "value": "http://app-env.eba-zbshrvie.us-east-1.elasticbeanstalk.com:5173"
+          },
+          {
+            "name": "SPRING_DATASOURCE_URL",
+            "value": "jdbc:h2:mem:testdb"
+          },
+          {
+            "name": "SPRING_DATASOURCE_USERNAME",
+            "value": "admin"
+          },
+          {
+            "name": "SPRING_DATASOURCE_PASSWORD",
+            "value": "admin"
+          }
+        ]
+      },
+      {
+        "name": "frontend-container",
+        "image": "hardwak/cloud_frontend:latest",
+        "essential": true,
+        "memory": 2048,
+        "portMappings": [
+          {
+            "hostPort": 5173,
+            "containerPort": 5173
+          }
+        ],
+        "environment": [
+          {
+            "name": "PUBLIC_API_BASE_URL",
+            "value": "http://app-env.eba-zbshrvie.us-east-1.elasticbeanstalk.com:8081"
+          }
+        ]
+      }
+    ]
+  }
